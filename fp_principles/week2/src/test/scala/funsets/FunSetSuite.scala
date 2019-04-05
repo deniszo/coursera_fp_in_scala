@@ -110,5 +110,38 @@ class FunSetSuite extends FunSuite {
     }
   }
 
+  test("intersect contains overlapping elements") {
+    new TestSets {
+      val s12 = union(s1, s2)
+      val s23 = union(s2, s3)
+      val intersec = intersect(s12, s23)
 
+      assert(!contains(intersec, 1), "Intersec 1")
+      assert(contains(intersec, 2), "Intersec 2")
+      assert(!contains(intersec, 3), "Intersec 3")
+    }
+  }
+
+  test("diff excludes overlapping elements") {
+    new TestSets {
+      val s12 = union(s1, s2)
+      val s23 = union(s2, s3)
+      val dif = diff(s12, s23)
+
+      assert(contains(dif, 1), "Diff 1")
+      assert(!contains(dif, 2), "Diff 2")
+      assert(contains(dif, 3), "Diff 3")
+    }
+  }
+
+  test("filter returns subset") {
+    new TestSets {
+      val all = union(union(s1, s2), s3)
+      val odd = filter(all, _ % 2 != 0)
+
+      assert(contains(odd, 1), "Filter 1")
+      assert(!contains(odd, 2), "Filter 2")
+      assert(contains(odd, 3), "Filter 3")
+    }
+  }
 }
