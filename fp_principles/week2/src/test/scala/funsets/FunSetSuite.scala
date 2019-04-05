@@ -122,15 +122,15 @@ class FunSetSuite extends FunSuite {
     }
   }
 
-  test("diff excludes overlapping elements") {
+  test("diff excludes overlapping elements from the first set") {
     new TestSets {
-      val s12 = union(s1, s2)
       val s23 = union(s2, s3)
-      val dif = diff(s12, s23)
+      val all = union(s1, s23)
+      val dif = diff(all, s23)
 
       assert(contains(dif, 1), "Diff 1")
       assert(!contains(dif, 2), "Diff 2")
-      assert(contains(dif, 3), "Diff 3")
+      assert(!contains(dif, 3), "Diff 3")
     }
   }
 
@@ -142,6 +142,42 @@ class FunSetSuite extends FunSuite {
       assert(contains(odd, 1), "Filter 1")
       assert(!contains(odd, 2), "Filter 2")
       assert(contains(odd, 3), "Filter 3")
+    }
+  }
+
+  test("forall returns true only if all elements in s satisfy p") {
+    new TestSets {
+      val mixed = union(s1, s2)
+      val oddsOnly = union(s1, s3)
+      val isOdd = (x: Int) => x % 2 != 0
+
+      assert(!forall(mixed, isOdd), "Forall 1")
+      assert(forall(oddsOnly, isOdd), "Forall 2")
+    }
+  }
+
+  test("exists returns true if any element in s satisfies p") {
+    new TestSets {
+      val mixed = union(s1, s2)
+      val oddsOnly = union(s1, s3)
+      val isEven = (x: Int) => x % 2 == 0
+
+      assert(exists(mixed, isEven), "Exists 1")
+      assert(!exists(oddsOnly, isEven), "Exists 2")
+    }
+  }
+
+  test("map returns apdated set") {
+    new TestSets {
+      val all = union(union(s1, s2), s3)
+      val multipliedBy4 = map(all, _ * 4)
+
+      assert(!contains(multipliedBy4, 1), "Map 1")
+      assert(!contains(multipliedBy4, 2), "Map 2")
+      assert(!contains(multipliedBy4, 3), "Map 3")
+      assert(contains(multipliedBy4, 4), "Map 4")
+      assert(contains(multipliedBy4, 8), "Map 8")
+      assert(contains(multipliedBy4, 12), "Map 12")
     }
   }
 }
