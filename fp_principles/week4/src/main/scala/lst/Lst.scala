@@ -24,5 +24,4 @@ object List {
 
 object test {
     val x: List[String] = Nil
-    def f(xs: List[NonEmpty], x: Empty) = xs prepend x
 }
