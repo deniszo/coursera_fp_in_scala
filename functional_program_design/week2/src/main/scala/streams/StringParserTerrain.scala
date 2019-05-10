@@ -71,7 +71,7 @@ trait StringParserTerrain extends GameDef {
     val row = levelVector.indexWhere(_.contains(c))
     val col = levelVector(row).indexOf(c)
 
-    Pos(col, row)
+    Pos(row, col)
   }
 
   private lazy val vector: Vector[Vector[Char]] =
