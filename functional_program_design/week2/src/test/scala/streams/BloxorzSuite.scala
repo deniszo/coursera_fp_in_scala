@@ -12,11 +12,11 @@ class BloxorzSuite extends FunSuite {
 
   trait SolutionChecker extends GameDef with Solver with StringParserTerrain {
     /**
-     * This method applies a list of moves `ls` to the block at position
-     * `startPos`. This can be used to verify if a certain list of moves
-     * is a valid solution, i.e. leads to the goal.
-     */
-    def solve(ls: List[Move]): Block =
+      * This method applies a list of moves `ls` to the block at position
+      * `startPos`. This can be used to verify if a certain list of moves
+      * is a valid solution, i.e. leads to the goal.
+      */
+    def solve(ls: List[Move]): Block = {
       ls.foldLeft(startBlock) { case (block, move) =>
         require(block.isLegal) // The solution must always lead to legal blocks
         move match {
@@ -25,6 +25,7 @@ class BloxorzSuite extends FunSuite {
           case Up => block.up
           case Down => block.down
         }
+      }
     }
   }
 
@@ -42,6 +43,17 @@ class BloxorzSuite extends FunSuite {
     val optsolution = List(Right, Right, Down, Right, Right, Right, Down)
   }
 
+  trait SuperSmallLevel extends SolutionChecker {
+    /* terrain for level 1*/
+
+    val level =
+      """ooo--
+        |oSo--
+        |ooooo
+        |-ooTo""".stripMargin
+
+    val optsolution = List(Right, Right, Down, Right, Right, Right, Down)
+  }
 
 	test("terrain function level 1") {
     new Level1 {
@@ -61,9 +73,32 @@ class BloxorzSuite extends FunSuite {
 	test("findChar level 1") {
     new Level1 {
       assert(startPos == Pos(1,1))
+      assert(goal == Pos(4, 7))
     }
   }
 
+  test("neighboursWithHistory") {
+    new Level1 {
+      assert(neighborsWithHistory(Block(Pos(1,1),Pos(1,1)), List(Left,Up)).toSet == Set(
+        (Block(Pos(1,2),Pos(1,3)), List(Right,Left,Up)),
+        (Block(Pos(2,1),Pos(3,1)), List(Down,Left,Up))
+      ))
+    }
+  }
+
+  test("newNeighboursOnly") {
+    new Level1 {
+      assert(newNeighborsOnly(
+        Set(
+          (Block(Pos(1,2),Pos(1,3)), List(Right,Left,Up)),
+          (Block(Pos(2,1),Pos(3,1)), List(Down,Left,Up))
+        ).toStream,
+        Set(Block(Pos(1,2),Pos(1,3)), Block(Pos(1,1),Pos(1,1)))
+      ) == Set(
+        (Block(Pos(2,1),Pos(3,1)), List(Down,Left,Up))
+      ).toStream)
+    }
+  }
 
 	test("optimal solution for level 1") {
     new Level1 {
@@ -77,5 +112,4 @@ class BloxorzSuite extends FunSuite {
       assert(solution.length == optsolution.length)
     }
   }
-
 }
