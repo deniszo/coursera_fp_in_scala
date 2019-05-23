@@ -1,13 +1,8 @@
-package calculator
-
-import org.scalatest.FunSuite
+package calc
 
 import org.junit.runner.RunWith
+import org.scalatest.{FunSuite, _}
 import org.scalatest.junit.JUnitRunner
-
-import org.scalatest._
-
-import TweetLength.MaxTweetLength
 
 @RunWith(classOf[JUnitRunner])
 class CalculatorSuite extends FunSuite with ShouldMatchers {
@@ -51,4 +46,40 @@ class CalculatorSuite extends FunSuite with ShouldMatchers {
     assert(resultRed2() == "red")
   }
 
+  test("computeDelta") {
+    val deltaSignal = Polynomial.computeDelta(Var(2), Var(3), Var(4))
+    assert(deltaSignal() == -23.0)
+  }
+
+  test("computeSolutions no roots") {
+    val (a, b, c) = (Var(2.0), Var(3.0), Var(4.0))
+    val compute = Polynomial.computeSolutions(a, b, c, Polynomial.computeDelta(a, b, c))
+    val result: Set[Double] = compute()
+    assert(result.isEmpty)
+  }
+
+  test("computeSolutions 1 root") {
+    val (a, b, c) = (Var(1.0), Var(2.0), Var(1.0))
+    val compute = Polynomial.computeSolutions(a, b, c, Polynomial.computeDelta(a, b, c))
+    val result: Set[Double] = compute()
+    assert(result.size == 1)
+    assert(result.contains(-1.0))
+  }
+
+  test("computeSolutions 2 roots") {
+    val (a, b, c) = (Var(5.0), Var(6.0), Var(1.0))
+    val compute = Polynomial.computeSolutions(a, b, c, Polynomial.computeDelta(a, b, c))
+    val result: Set[Double] = compute()
+    assert(result.size == 2)
+    assert(result.contains(-0.2))
+    assert(result.contains(-1.0))
+  }
+
+  test("eval Ref('a') when a is missing returns NaN") {
+    assert(Double.box(Calculator.eval(Ref("a"), Map.empty)).isNaN)
+  }
+
+  test("computeValues with self ref sets self ref key values to NaN") {
+    Calculator.computeValues(Map("a" -> Ref("a"), "b" -> Ref("b")))
+  }
 }
