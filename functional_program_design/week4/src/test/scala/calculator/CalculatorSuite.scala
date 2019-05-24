@@ -1,8 +1,10 @@
-package calc
+package calculator
 
 import org.junit.runner.RunWith
-import org.scalatest.{FunSuite, _}
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.{FunSuite, _}
+
+import TweetLength.MaxTweetLength
 
 @RunWith(classOf[JUnitRunner])
 class CalculatorSuite extends FunSuite with ShouldMatchers {
@@ -80,6 +82,33 @@ class CalculatorSuite extends FunSuite with ShouldMatchers {
   }
 
   test("computeValues with self ref sets self ref key values to NaN") {
-    Calculator.computeValues(Map("a" -> Ref("a"), "b" -> Ref("b")))
+    Calculator.computeValues(Map("a" -> Var(Ref("a")), "b" -> Var(Ref("b")))) foreach { case(_, v) =>
+      assert(Double.box(v()).isNaN)
+    }
+  }
+
+  test("computeValues with circular refs values to NaN") {
+    val res = Calculator.computeValues(
+      Map(
+        "a" -> Var(Plus(Ref("b"), Literal(1.0))),
+        "b" -> Var(Times(Literal(2.0), Ref("a")))
+      ))
+
+    res foreach { case(key, v) =>
+      println(s"$key is ${v()}")
+      assert(Double.box(v()).isNaN)
+    }
+  }
+
+  test("computeValues simple") {
+    val res = Calculator.computeValues(
+      Map(
+        "a" -> Var(Plus(Ref("b"), Literal(1.0))),
+        "b" -> Var(Times(Literal(2.0), Ref("c"))),
+        "c" -> Var(Literal(4.0))
+      ))
+
+    val a = res getOrElse("a", Var(Double.NaN))
+    assert(a() == 9.0)
   }
 }
